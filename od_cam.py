@@ -1,19 +1,22 @@
 import cv2 as cv
 import matplotlib.pyplot as plt 
-
+from imutils.video import FPS
 config = 'ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt'
 frozen_model = 'ssd_mobilenet_v3_large_coco_2020_01_14/frozen_inference_graph.pb'
 
 model = cv.dnn_DetectionModel(frozen_model,config)
+#net =cv.dnn.readNetFromTensorflow()
+#net.detection
 classlabel =[]
 file_label ='label.txt'
 with  open(file_label,'rt') as f:
     classlabel = f.read().rstrip('\n').split('\n')
-print(classlabel)
+#print(classlabel)
 
 cap = cv.VideoCapture(-1)
-cap.set(3,330)
-cap.set(4,288)
+cap.set(3,320)
+cap.set(4,320)
+fps = FPS().start()
 model.setInputSize(320,320)
 model.setInputMean((127.5,127.5,127.5))
 model.setInputScale(1.0/127.5)
@@ -33,5 +36,7 @@ while cv.waitKey(1) < 0:
                 cv.rectangle(frame,boxes,(0,255,0))
                 cv.putText(frame, 'person {}'.format(conF),(boxes[0]+10,boxes[1]+40),font,fontScale=font_scale,color=(255,0,0),thickness=1)
     cv.imshow('person detection',frame)
-cap.release()
-cv.destroyAllWindows()
+    fps.update()
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
